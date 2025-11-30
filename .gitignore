@@ -13,10 +13,17 @@ lerna-debug.log*
 
 # OS
 .DS_Store
+Thumbs.db
+
+# Environment variables
+.env
 
 # Tests
 /coverage
 /.nyc_output
+
+# TypeScript
+*.tsbuildinfo
 
 # IDEs and editors
 /.idea
@@ -33,3 +40,8 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Temporary files
+*.tmp
+*.temp
+.cache

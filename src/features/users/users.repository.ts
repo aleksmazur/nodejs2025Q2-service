@@ -65,4 +65,3 @@ export class InMemoryUsersRepository extends UsersRepository {
     }
   }
 }
-
