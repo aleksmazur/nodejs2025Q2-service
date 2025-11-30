@@ -5,6 +5,7 @@ import { ArtistsRepository } from './artists.repository';
 import { ArtistResponseDto } from './dto/artist-response.dto';
 import { TracksRepository } from '../tracks/tracks.repository';
 import { AlbumsRepository } from '../albums/albums.repository';
+import { FavoritesRepository } from '../favorites/favorites.repository';
 
 @Injectable()
 export class ArtistsService {
@@ -12,6 +13,7 @@ export class ArtistsService {
     private readonly artistsRepository: ArtistsRepository,
     private readonly tracksRepository: TracksRepository,
     private readonly albumsRepository: AlbumsRepository,
+    private readonly favoritesRepository: FavoritesRepository,
   ) {}
 
   async create(createArtistDto: CreateArtistDto): Promise<ArtistResponseDto> {
@@ -32,13 +34,19 @@ export class ArtistsService {
     return artist as ArtistResponseDto;
   }
 
-  async update(id: string, updateArtistDto: UpdateArtistDto): Promise<ArtistResponseDto> {
+  async update(
+    id: string,
+    updateArtistDto: UpdateArtistDto,
+  ): Promise<ArtistResponseDto> {
     const artist = await this.artistsRepository.findById(id);
     if (!artist) {
       throw new NotFoundException(`Artist with id ${id} not found`);
     }
 
-    const updatedArtist = await this.artistsRepository.update(id, updateArtistDto);
+    const updatedArtist = await this.artistsRepository.update(
+      id,
+      updateArtistDto,
+    );
     return updatedArtist as ArtistResponseDto;
   }
 
@@ -50,8 +58,8 @@ export class ArtistsService {
 
     await this.tracksRepository.removeArtistIdFromTracks(id);
     await this.albumsRepository.removeArtistIdFromAlbums(id);
+    await this.favoritesRepository.removeArtistIfExists(id);
 
     await this.artistsRepository.delete(id);
   }
 }
-

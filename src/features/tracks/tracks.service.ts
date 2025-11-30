@@ -3,10 +3,14 @@ import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { TracksRepository } from './tracks.repository';
 import { TrackResponseDto } from './dto/track-response.dto';
+import { FavoritesRepository } from '../favorites/favorites.repository';
 
 @Injectable()
 export class TracksService {
-  constructor(private readonly tracksRepository: TracksRepository) {}
+  constructor(
+    private readonly tracksRepository: TracksRepository,
+    private readonly favoritesRepository: FavoritesRepository,
+  ) {}
 
   async create(createTrackDto: CreateTrackDto): Promise<TrackResponseDto> {
     const track = await this.tracksRepository.create(createTrackDto);
@@ -26,7 +30,10 @@ export class TracksService {
     return track as TrackResponseDto;
   }
 
-  async update(id: string, updateTrackDto: UpdateTrackDto): Promise<TrackResponseDto> {
+  async update(
+    id: string,
+    updateTrackDto: UpdateTrackDto,
+  ): Promise<TrackResponseDto> {
     const track = await this.tracksRepository.findById(id);
     if (!track) {
       throw new NotFoundException(`Track with id ${id} not found`);
@@ -42,7 +49,8 @@ export class TracksService {
       throw new NotFoundException(`Track with id ${id} not found`);
     }
 
+    await this.favoritesRepository.removeTrackIfExists(id);
+
     await this.tracksRepository.delete(id);
   }
 }
-

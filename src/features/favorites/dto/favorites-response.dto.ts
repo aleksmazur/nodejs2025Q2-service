@@ -22,4 +22,3 @@ export class FavoritesResponseDto {
   })
   tracks: TrackResponseDto[];
 }
-

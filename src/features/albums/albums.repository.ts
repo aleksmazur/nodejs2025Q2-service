@@ -8,7 +8,10 @@ export abstract class AlbumsRepository {
   abstract create(createAlbumDto: CreateAlbumDto): Promise<IAlbum>;
   abstract findAll(): Promise<IAlbum[]>;
   abstract findById(id: string): Promise<IAlbum | null>;
-  abstract update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<IAlbum | null>;
+  abstract update(
+    id: string,
+    updateAlbumDto: UpdateAlbumDto,
+  ): Promise<IAlbum | null>;
   abstract delete(id: string): Promise<void>;
   abstract removeArtistIdFromAlbums(artistId: string): Promise<void>;
 }
@@ -36,7 +39,10 @@ export class InMemoryAlbumsRepository extends AlbumsRepository {
     return this.albums.find((t) => t.id === id) || null;
   }
 
-  async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<IAlbum | null> {
+  async update(
+    id: string,
+    updateAlbumDto: UpdateAlbumDto,
+  ): Promise<IAlbum | null> {
     const albumIndex = this.albums.findIndex((t) => t.id === id);
     if (albumIndex === -1) {
       return null;
@@ -65,4 +71,3 @@ export class InMemoryAlbumsRepository extends AlbumsRepository {
     });
   }
 }
-

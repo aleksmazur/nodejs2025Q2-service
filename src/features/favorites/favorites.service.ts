@@ -98,4 +98,3 @@ export class FavoritesService {
     await this.favoritesRepository.removeArtist(artistId);
   }
 }
-

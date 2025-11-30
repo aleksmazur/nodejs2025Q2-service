@@ -1,10 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsUUID,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateTrackDto {
   @ApiProperty({
     description: 'Track name',
     example: 'Track Name',
   })
+  @IsString()
+  @IsNotEmpty()
   name: string;
 
   @ApiProperty({
@@ -12,6 +21,8 @@ export class CreateTrackDto {
     example: '123e4567-e89b-12d3-a456-426614174000',
     nullable: true,
   })
+  @IsOptional()
+  @IsUUID()
   artistId: string | null;
 
   @ApiProperty({
@@ -19,12 +30,15 @@ export class CreateTrackDto {
     example: '123e4567-e89b-12d3-a456-426614174000',
     nullable: true,
   })
+  @IsOptional()
+  @IsUUID()
   albumId: string | null;
 
   @ApiProperty({
     description: 'Track duration in seconds',
     example: 120,
   })
+  @IsNumber()
+  @IsNotEmpty()
   duration: number;
 }
-

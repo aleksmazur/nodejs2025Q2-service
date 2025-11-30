@@ -8,12 +8,7 @@ import {
   HttpStatus,
   BadRequestException,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { FavoritesService } from './favorites.service';
 import { FavoritesResponseDto } from './dto/favorites-response.dto';
 import { validate as uuidValidate } from 'uuid';
@@ -197,4 +192,3 @@ export class FavoritesController {
     await this.favoritesService.removeArtist(id);
   }
 }
-

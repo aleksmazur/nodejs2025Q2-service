@@ -4,12 +4,14 @@ import { UpdateAlbumDto } from './dto/update-album.dto';
 import { AlbumsRepository } from './albums.repository';
 import { AlbumResponseDto } from './dto/album-response.dto';
 import { TracksRepository } from '../tracks/tracks.repository';
+import { FavoritesRepository } from '../favorites/favorites.repository';
 
 @Injectable()
 export class AlbumsService {
   constructor(
     private readonly albumsRepository: AlbumsRepository,
     private readonly tracksRepository: TracksRepository,
+    private readonly favoritesRepository: FavoritesRepository,
   ) {}
 
   async create(createAlbumDto: CreateAlbumDto): Promise<AlbumResponseDto> {
@@ -30,7 +32,10 @@ export class AlbumsService {
     return album as AlbumResponseDto;
   }
 
-  async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<AlbumResponseDto> {
+  async update(
+    id: string,
+    updateAlbumDto: UpdateAlbumDto,
+  ): Promise<AlbumResponseDto> {
     const album = await this.albumsRepository.findById(id);
     if (!album) {
       throw new NotFoundException(`Album with id ${id} not found`);
@@ -47,8 +52,8 @@ export class AlbumsService {
     }
 
     await this.tracksRepository.removeAlbumIdFromTracks(id);
+    await this.favoritesRepository.removeAlbumIfExists(id);
 
     await this.albumsRepository.delete(id);
   }
 }
-

@@ -1,5 +1,5 @@
 export interface IFavorite {
-    artists: string[];
-    albums: string[];
-    tracks: string[];
+  artists: string[];
+  albums: string[];
+  tracks: string[];
 }

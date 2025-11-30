@@ -14,7 +14,7 @@ export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   private excludePassword(user: IUser): UserResponseDto {
-    const { password, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
     return userWithoutPassword as UserResponseDto;
   }
 

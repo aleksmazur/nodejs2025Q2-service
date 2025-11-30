@@ -8,7 +8,10 @@ export abstract class TracksRepository {
   abstract create(createTrackDto: CreateTrackDto): Promise<ITrack>;
   abstract findAll(): Promise<ITrack[]>;
   abstract findById(id: string): Promise<ITrack | null>;
-  abstract update(id: string, updateTrackDto: UpdateTrackDto): Promise<ITrack | null>;
+  abstract update(
+    id: string,
+    updateTrackDto: UpdateTrackDto,
+  ): Promise<ITrack | null>;
   abstract delete(id: string): Promise<void>;
   abstract removeAlbumIdFromTracks(albumId: string): Promise<void>;
   abstract removeArtistIdFromTracks(artistId: string): Promise<void>;
@@ -38,7 +41,10 @@ export class InMemoryTracksRepository extends TracksRepository {
     return this.tracks.find((t) => t.id === id) || null;
   }
 
-  async update(id: string, updateTrackDto: UpdateTrackDto): Promise<ITrack | null> {
+  async update(
+    id: string,
+    updateTrackDto: UpdateTrackDto,
+  ): Promise<ITrack | null> {
     const trackIndex = this.tracks.findIndex((t) => t.id === id);
     if (trackIndex === -1) {
       return null;
@@ -76,4 +82,3 @@ export class InMemoryTracksRepository extends TracksRepository {
     });
   }
 }
-

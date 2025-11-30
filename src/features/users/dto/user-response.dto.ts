@@ -31,4 +31,3 @@ export class UserResponseDto {
   })
   updatedAt: number;
 }
-

@@ -8,7 +8,10 @@ export abstract class ArtistsRepository {
   abstract create(createArtistDto: CreateArtistDto): Promise<IArtist>;
   abstract findAll(): Promise<IArtist[]>;
   abstract findById(id: string): Promise<IArtist | null>;
-  abstract update(id: string, updateArtistDto: UpdateArtistDto): Promise<IArtist | null>;
+  abstract update(
+    id: string,
+    updateArtistDto: UpdateArtistDto,
+  ): Promise<IArtist | null>;
   abstract delete(id: string): Promise<void>;
 }
 
@@ -34,7 +37,10 @@ export class InMemoryArtistsRepository extends ArtistsRepository {
     return this.artists.find((t) => t.id === id) || null;
   }
 
-  async update(id: string, updateArtistDto: UpdateArtistDto): Promise<IArtist | null> {
+  async update(
+    id: string,
+    updateArtistDto: UpdateArtistDto,
+  ): Promise<IArtist | null> {
     const artistIndex = this.artists.findIndex((t) => t.id === id);
     if (artistIndex === -1) {
       return null;
@@ -54,4 +60,3 @@ export class InMemoryArtistsRepository extends ArtistsRepository {
     }
   }
 }
-

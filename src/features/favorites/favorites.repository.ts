@@ -9,6 +9,9 @@ export abstract class FavoritesRepository {
   abstract removeAlbum(albumId: string): Promise<void>;
   abstract addArtist(artistId: string): Promise<void>;
   abstract removeArtist(artistId: string): Promise<void>;
+  abstract removeTrackIfExists(trackId: string): Promise<void>;
+  abstract removeAlbumIfExists(albumId: string): Promise<void>;
+  abstract removeArtistIfExists(artistId: string): Promise<void>;
 }
 
 @Injectable()
@@ -61,5 +64,16 @@ export class InMemoryFavoritesRepository extends FavoritesRepository {
       this.favorites.artists.splice(index, 1);
     }
   }
-}
 
+  async removeTrackIfExists(trackId: string): Promise<void> {
+    await this.removeTrack(trackId);
+  }
+
+  async removeAlbumIfExists(albumId: string): Promise<void> {
+    await this.removeAlbum(albumId);
+  }
+
+  async removeArtistIfExists(artistId: string): Promise<void> {
+    await this.removeArtist(artistId);
+  }
+}
