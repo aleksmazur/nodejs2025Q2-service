@@ -1,27 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { User } from './interfaces/user.interface';
+import { IUser } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { v4 as uuidv4 } from 'uuid';
 
 export abstract class UsersRepository {
-  abstract create(createUserDto: CreateUserDto): Promise<User>;
-  abstract findAll(): Promise<User[]>;
-  abstract findById(id: string): Promise<User | null>;
+  abstract create(createUserDto: CreateUserDto): Promise<IUser>;
+  abstract findAll(): Promise<IUser[]>;
+  abstract findById(id: string): Promise<IUser | null>;
   abstract updatePassword(
     id: string,
     updatePasswordDto: UpdatePasswordDto,
-  ): Promise<User | null>;
+  ): Promise<IUser | null>;
   abstract delete(id: string): Promise<void>;
 }
 
 @Injectable()
 export class InMemoryUsersRepository extends UsersRepository {
-  private readonly users: User[] = [];
+  private readonly users: IUser[] = [];
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<IUser> {
     const now = Date.now();
-    const newUser: User = {
+    const newUser: IUser = {
       id: uuidv4(),
       login: createUserDto.login,
       password: createUserDto.password,
@@ -33,18 +33,18 @@ export class InMemoryUsersRepository extends UsersRepository {
     return newUser;
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<IUser[]> {
     return this.users;
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: string): Promise<IUser | null> {
     return this.users.find((u) => u.id === id) || null;
   }
 
   async updatePassword(
     id: string,
     updatePasswordDto: UpdatePasswordDto,
-  ): Promise<User | null> {
+  ): Promise<IUser | null> {
     const userIndex = this.users.findIndex((u) => u.id === id);
     if (userIndex === -1) {
       return null;
