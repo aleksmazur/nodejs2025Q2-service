@@ -14,6 +14,6 @@ import { AlbumsModule } from '../albums/albums.module';
             useClass: InMemoryArtistsRepository,      
         }
     ],
-    exports: [ArtistsService]
+    exports: [ArtistsService, ArtistsRepository]
 })
 export class ArtistsModule {}
