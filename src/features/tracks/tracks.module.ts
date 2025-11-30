@@ -11,6 +11,6 @@ import { TracksRepository, InMemoryTracksRepository } from './tracks.repository'
             useClass: InMemoryTracksRepository,      
         }
     ],
-    exports: [TracksService]
+    exports: [TracksService, TracksRepository]
 })
 export class TracksModule {}

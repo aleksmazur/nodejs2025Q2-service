@@ -3,10 +3,16 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ArtistsRepository } from './artists.repository';
 import { ArtistResponseDto } from './dto/artist-response.dto';
+import { TracksRepository } from '../tracks/tracks.repository';
+import { AlbumsRepository } from '../albums/albums.repository';
 
 @Injectable()
 export class ArtistsService {
-  constructor(private readonly artistsRepository: ArtistsRepository) {}
+  constructor(
+    private readonly artistsRepository: ArtistsRepository,
+    private readonly tracksRepository: TracksRepository,
+    private readonly albumsRepository: AlbumsRepository,
+  ) {}
 
   async create(createArtistDto: CreateArtistDto): Promise<ArtistResponseDto> {
     const artist = await this.artistsRepository.create(createArtistDto);
@@ -41,6 +47,9 @@ export class ArtistsService {
     if (!artist) {
       throw new NotFoundException(`Artist with id ${id} not found`);
     }
+
+    await this.tracksRepository.removeArtistIdFromTracks(id);
+    await this.albumsRepository.removeArtistIdFromAlbums(id);
 
     await this.artistsRepository.delete(id);
   }

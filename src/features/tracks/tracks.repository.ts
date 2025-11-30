@@ -10,6 +10,8 @@ export abstract class TracksRepository {
   abstract findById(id: string): Promise<ITrack | null>;
   abstract update(id: string, updateTrackDto: UpdateTrackDto): Promise<ITrack | null>;
   abstract delete(id: string): Promise<void>;
+  abstract removeAlbumIdFromTracks(albumId: string): Promise<void>;
+  abstract removeArtistIdFromTracks(artistId: string): Promise<void>;
 }
 
 @Injectable()
@@ -56,6 +58,22 @@ export class InMemoryTracksRepository extends TracksRepository {
     if (trackIndex !== -1) {
       this.tracks.splice(trackIndex, 1);
     }
+  }
+
+  async removeAlbumIdFromTracks(albumId: string): Promise<void> {
+    this.tracks.forEach((track) => {
+      if (track.albumId === albumId) {
+        track.albumId = null;
+      }
+    });
+  }
+
+  async removeArtistIdFromTracks(artistId: string): Promise<void> {
+    this.tracks.forEach((track) => {
+      if (track.artistId === artistId) {
+        track.artistId = null;
+      }
+    });
   }
 }
 

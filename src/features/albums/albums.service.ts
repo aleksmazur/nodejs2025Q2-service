@@ -3,10 +3,14 @@ import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { AlbumsRepository } from './albums.repository';
 import { AlbumResponseDto } from './dto/album-response.dto';
+import { TracksRepository } from '../tracks/tracks.repository';
 
 @Injectable()
 export class AlbumsService {
-  constructor(private readonly albumsRepository: AlbumsRepository) {}
+  constructor(
+    private readonly albumsRepository: AlbumsRepository,
+    private readonly tracksRepository: TracksRepository,
+  ) {}
 
   async create(createAlbumDto: CreateAlbumDto): Promise<AlbumResponseDto> {
     const album = await this.albumsRepository.create(createAlbumDto);
@@ -41,6 +45,8 @@ export class AlbumsService {
     if (!album) {
       throw new NotFoundException(`Album with id ${id} not found`);
     }
+
+    await this.tracksRepository.removeAlbumIdFromTracks(id);
 
     await this.albumsRepository.delete(id);
   }

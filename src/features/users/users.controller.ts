@@ -123,6 +123,11 @@ export class UsersController {
     if (!uuidValidate(id)) {
       throw new BadRequestException('Invalid userId format');
     }
+    if (!updatePasswordDto.oldPassword || !updatePasswordDto.newPassword) {
+      throw new BadRequestException(
+        'Request body does not contain required fields',
+      );
+    }
     return await this.usersService.updatePassword(id, updatePasswordDto);
   }
 

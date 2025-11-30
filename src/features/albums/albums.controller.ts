@@ -125,8 +125,10 @@ import {
       }
       if (
         !updateAlbumDto.name ||
+        typeof updateAlbumDto.name !== 'string' ||
         updateAlbumDto.year === undefined ||
-        updateAlbumDto.year === null
+        updateAlbumDto.year === null ||
+        typeof updateAlbumDto.year !== 'number'
       ) {
         throw new BadRequestException(
           'Request body does not contain required fields',

@@ -125,8 +125,10 @@ import {
       }
       if (
         !updateArtistDto.name ||
+        typeof updateArtistDto.name !== 'string' ||
         updateArtistDto.grammy === undefined ||
-        updateArtistDto.grammy === null
+        updateArtistDto.grammy === null ||
+        typeof updateArtistDto.grammy !== 'boolean'
       ) {
         throw new BadRequestException(
           'Request body does not contain required fields',

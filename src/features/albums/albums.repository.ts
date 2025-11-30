@@ -10,6 +10,7 @@ export abstract class AlbumsRepository {
   abstract findById(id: string): Promise<IAlbum | null>;
   abstract update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<IAlbum | null>;
   abstract delete(id: string): Promise<void>;
+  abstract removeArtistIdFromAlbums(artistId: string): Promise<void>;
 }
 
 @Injectable()
@@ -54,6 +55,14 @@ export class InMemoryAlbumsRepository extends AlbumsRepository {
     if (albumIndex !== -1) {
       this.albums.splice(albumIndex, 1);
     }
+  }
+
+  async removeArtistIdFromAlbums(artistId: string): Promise<void> {
+    this.albums.forEach((album) => {
+      if (album.artistId === artistId) {
+        album.artistId = null;
+      }
+    });
   }
 }
 
