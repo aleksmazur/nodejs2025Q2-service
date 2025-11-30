@@ -14,8 +14,13 @@ export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   private excludePassword(user: IUser): UserResponseDto {
-    const { password: _password, ...userWithoutPassword } = user;
-    return userWithoutPassword as UserResponseDto;
+    return {
+      id: user.id,
+      login: user.login,
+      version: user.version,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
