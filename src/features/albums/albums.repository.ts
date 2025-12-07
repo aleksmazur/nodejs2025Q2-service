@@ -91,9 +91,6 @@ export class TypeOrmAlbumsRepository extends AlbumsRepository {
   }
 
   async removeArtistIdFromAlbums(artistId: string): Promise<void> {
-    await this.albumRepository.update(
-      { artistId },
-      { artistId: null },
-    );
+    await this.albumRepository.update({ artistId }, { artistId: null });
   }
 }

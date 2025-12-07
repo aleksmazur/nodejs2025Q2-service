@@ -33,4 +33,3 @@ export class Track {
   @JoinColumn({ name: 'albumId' })
   album: Album | null;
 }
-

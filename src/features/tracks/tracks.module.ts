@@ -2,10 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TracksController } from './tracks.controller';
 import { TracksService } from './tracks.service';
-import {
-  TracksRepository,
-  TypeOrmTracksRepository,
-} from './tracks.repository';
+import { TracksRepository, TypeOrmTracksRepository } from './tracks.repository';
 import { Track } from './entities/track.entity';
 import { FavoritesModule } from '../favorites/favorites.module';
 

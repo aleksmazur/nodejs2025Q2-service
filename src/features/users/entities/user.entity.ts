@@ -38,4 +38,3 @@ export class User {
     this.updatedAt = Date.now();
   }
 }
-

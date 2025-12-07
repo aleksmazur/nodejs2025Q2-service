@@ -98,16 +98,10 @@ export class TypeOrmTracksRepository extends TracksRepository {
   }
 
   async removeAlbumIdFromTracks(albumId: string): Promise<void> {
-    await this.trackRepository.update(
-      { albumId },
-      { albumId: null },
-    );
+    await this.trackRepository.update({ albumId }, { albumId: null });
   }
 
   async removeArtistIdFromTracks(artistId: string): Promise<void> {
-    await this.trackRepository.update(
-      { artistId },
-      { artistId: null },
-    );
+    await this.trackRepository.update({ artistId }, { artistId: null });
   }
 }

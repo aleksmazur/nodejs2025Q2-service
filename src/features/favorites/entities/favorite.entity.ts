@@ -14,4 +14,3 @@ export class Favorite {
   @Column('simple-array', { default: [] })
   tracks: string[];
 }
-

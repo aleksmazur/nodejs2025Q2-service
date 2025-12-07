@@ -25,4 +25,3 @@ export class Album {
   @JoinColumn({ name: 'artistId' })
   artist: Artist | null;
 }
-
