@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { ITrack } from './interfaces/track.interface';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-import { v4 as uuidv4 } from 'uuid';
+import { Track } from './entities/track.entity';
 
 export abstract class TracksRepository {
   abstract create(createTrackDto: CreateTrackDto): Promise<ITrack>;
@@ -18,67 +20,94 @@ export abstract class TracksRepository {
 }
 
 @Injectable()
-export class InMemoryTracksRepository extends TracksRepository {
-  private readonly tracks: ITrack[] = [];
+export class TypeOrmTracksRepository extends TracksRepository {
+  constructor(
+    @InjectRepository(Track)
+    private readonly trackRepository: Repository<Track>,
+  ) {
+    super();
+  }
 
   async create(createTrackDto: CreateTrackDto): Promise<ITrack> {
-    const newTrack: ITrack = {
-      id: uuidv4(),
+    const track = this.trackRepository.create({
       name: createTrackDto.name,
-      artistId: createTrackDto.artistId,
-      albumId: createTrackDto.albumId,
+      artistId: createTrackDto.artistId || null,
+      albumId: createTrackDto.albumId || null,
       duration: createTrackDto.duration,
+    });
+    const savedTrack = await this.trackRepository.save(track);
+    return {
+      id: savedTrack.id,
+      name: savedTrack.name,
+      artistId: savedTrack.artistId,
+      albumId: savedTrack.albumId,
+      duration: savedTrack.duration,
     };
-    this.tracks.push(newTrack);
-    return newTrack;
   }
 
   async findAll(): Promise<ITrack[]> {
-    return this.tracks;
+    const tracks = await this.trackRepository.find();
+    return tracks.map((track) => ({
+      id: track.id,
+      name: track.name,
+      artistId: track.artistId,
+      albumId: track.albumId,
+      duration: track.duration,
+    }));
   }
 
   async findById(id: string): Promise<ITrack | null> {
-    return this.tracks.find((t) => t.id === id) || null;
+    const track = await this.trackRepository.findOne({ where: { id } });
+    if (!track) {
+      return null;
+    }
+    return {
+      id: track.id,
+      name: track.name,
+      artistId: track.artistId,
+      albumId: track.albumId,
+      duration: track.duration,
+    };
   }
 
   async update(
     id: string,
     updateTrackDto: UpdateTrackDto,
   ): Promise<ITrack | null> {
-    const trackIndex = this.tracks.findIndex((t) => t.id === id);
-    if (trackIndex === -1) {
+    const track = await this.trackRepository.findOne({ where: { id } });
+    if (!track) {
       return null;
     }
 
-    const track = this.tracks[trackIndex];
     track.name = updateTrackDto.name;
-    track.artistId = updateTrackDto.artistId;
-    track.albumId = updateTrackDto.albumId;
+    track.artistId = updateTrackDto.artistId || null;
+    track.albumId = updateTrackDto.albumId || null;
     track.duration = updateTrackDto.duration;
-
-    return track;
+    const savedTrack = await this.trackRepository.save(track);
+    return {
+      id: savedTrack.id,
+      name: savedTrack.name,
+      artistId: savedTrack.artistId,
+      albumId: savedTrack.albumId,
+      duration: savedTrack.duration,
+    };
   }
 
   async delete(id: string): Promise<void> {
-    const trackIndex = this.tracks.findIndex((t) => t.id === id);
-    if (trackIndex !== -1) {
-      this.tracks.splice(trackIndex, 1);
-    }
+    await this.trackRepository.delete(id);
   }
 
   async removeAlbumIdFromTracks(albumId: string): Promise<void> {
-    this.tracks.forEach((track) => {
-      if (track.albumId === albumId) {
-        track.albumId = null;
-      }
-    });
+    await this.trackRepository.update(
+      { albumId },
+      { albumId: null },
+    );
   }
 
   async removeArtistIdFromTracks(artistId: string): Promise<void> {
-    this.tracks.forEach((track) => {
-      if (track.artistId === artistId) {
-        track.artistId = null;
-      }
-    });
+    await this.trackRepository.update(
+      { artistId },
+      { artistId: null },
+    );
   }
 }
