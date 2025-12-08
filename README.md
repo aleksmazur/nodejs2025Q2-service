@@ -23,9 +23,25 @@ npm install
 npm start
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+The application will start on port 4000 by default. You can configure the port by setting the `PORT` environment variable in the `.env` file:
+
+```
+PORT=4000
+```
+
+After starting the app, you can access:
+- **API Base URL**: `http://localhost:4000`
+- **Swagger/OpenAPI Documentation**: `http://localhost:4000/api`
+
+### Swagger Documentation
+
+The Swagger documentation provides an interactive API testing interface where you can:
+- View all available endpoints with detailed descriptions
+- See request/response schemas and examples
+- Test API endpoints directly from the browser
+- Understand data validation rules and error responses
+
+For more information about OpenAPI/Swagger, please visit https://swagger.io/.
 
 ## Testing
 
