@@ -18,7 +18,13 @@ export class User {
   @Column({ type: 'varchar', length: 255 })
   password: string;
 
-  @VersionColumn()
+  @VersionColumn({
+    type: 'int',
+    transformer: {
+      to: (value: number) => value,
+      from: (value: any) => typeof value === 'string' ? parseInt(value, 10) : value,
+    },
+  })
   version: number;
 
   @Column({ type: 'bigint' })

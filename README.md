@@ -182,3 +182,8 @@ This will build the application image and scan it for security vulnerabilities. 
 Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+
+### Docker Images
+
+- [Postgres Docker Image](https://hub.docker.com/r/almazzzur/nodejs2025q2-service-postgres)
+- [Application Docker Image](https://hub.docker.com/r/almazzzur/nodejs2025q2-service-app)
