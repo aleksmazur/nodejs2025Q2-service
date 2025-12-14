@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { IUser } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { v4 as uuidv4 } from 'uuid';
+import { User } from './entities/user.entity';
 
 export abstract class UsersRepository {
   abstract create(createUserDto: CreateUserDto): Promise<IUser>;
@@ -16,52 +18,79 @@ export abstract class UsersRepository {
 }
 
 @Injectable()
-export class InMemoryUsersRepository extends UsersRepository {
-  private readonly users: IUser[] = [];
+export class TypeOrmUsersRepository extends UsersRepository {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {
+    super();
+  }
 
   async create(createUserDto: CreateUserDto): Promise<IUser> {
-    const now = Date.now();
-    const newUser: IUser = {
-      id: uuidv4(),
+    const user = this.userRepository.create({
       login: createUserDto.login,
       password: createUserDto.password,
-      version: 1,
-      createdAt: now,
-      updatedAt: now,
+    });
+    const savedUser = await this.userRepository.save(user);
+    return {
+      id: savedUser.id,
+      login: savedUser.login,
+      password: savedUser.password,
+      version: savedUser.version,
+      createdAt: savedUser.createdAt,
+      updatedAt: savedUser.updatedAt,
     };
-    this.users.push(newUser);
-    return newUser;
   }
 
   async findAll(): Promise<IUser[]> {
-    return this.users;
+    const users = await this.userRepository.find();
+    return users.map((user) => ({
+      id: user.id,
+      login: user.login,
+      password: user.password,
+      version: user.version,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
   }
 
   async findById(id: string): Promise<IUser | null> {
-    return this.users.find((u) => u.id === id) || null;
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      return null;
+    }
+    return {
+      id: user.id,
+      login: user.login,
+      password: user.password,
+      version: user.version,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 
   async updatePassword(
     id: string,
     updatePasswordDto: UpdatePasswordDto,
   ): Promise<IUser | null> {
-    const userIndex = this.users.findIndex((u) => u.id === id);
-    if (userIndex === -1) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
       return null;
     }
 
-    const user = this.users[userIndex];
     user.password = updatePasswordDto.newPassword;
-    user.version += 1;
-    user.updatedAt = Date.now();
-
-    return user;
+    const savedUser = await this.userRepository.save(user);
+    return {
+      id: savedUser.id,
+      login: savedUser.login,
+      password: savedUser.password,
+      version: savedUser.version,
+      createdAt: savedUser.createdAt,
+      updatedAt: savedUser.updatedAt,
+    };
   }
 
   async delete(id: string): Promise<void> {
-    const userIndex = this.users.findIndex((u) => u.id === id);
-    if (userIndex !== -1) {
-      this.users.splice(userIndex, 1);
-    }
+    await this.userRepository.delete(id);
   }
 }

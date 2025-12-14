@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { IArtist } from './interfaces/artist.interface';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { v4 as uuidv4 } from 'uuid';
+import { Artist } from './entities/artist.entity';
 
 export abstract class ArtistsRepository {
   abstract create(createArtistDto: CreateArtistDto): Promise<IArtist>;
@@ -16,47 +18,68 @@ export abstract class ArtistsRepository {
 }
 
 @Injectable()
-export class InMemoryArtistsRepository extends ArtistsRepository {
-  private readonly artists: IArtist[] = [];
+export class TypeOrmArtistsRepository extends ArtistsRepository {
+  constructor(
+    @InjectRepository(Artist)
+    private readonly artistRepository: Repository<Artist>,
+  ) {
+    super();
+  }
 
   async create(createArtistDto: CreateArtistDto): Promise<IArtist> {
-    const newArtist: IArtist = {
-      id: uuidv4(),
+    const artist = this.artistRepository.create({
       name: createArtistDto.name,
       grammy: createArtistDto.grammy,
+    });
+    const savedArtist = await this.artistRepository.save(artist);
+    return {
+      id: savedArtist.id,
+      name: savedArtist.name,
+      grammy: savedArtist.grammy,
     };
-    this.artists.push(newArtist);
-    return newArtist;
   }
 
   async findAll(): Promise<IArtist[]> {
-    return this.artists;
+    const artists = await this.artistRepository.find();
+    return artists.map((artist) => ({
+      id: artist.id,
+      name: artist.name,
+      grammy: artist.grammy,
+    }));
   }
 
   async findById(id: string): Promise<IArtist | null> {
-    return this.artists.find((t) => t.id === id) || null;
+    const artist = await this.artistRepository.findOne({ where: { id } });
+    if (!artist) {
+      return null;
+    }
+    return {
+      id: artist.id,
+      name: artist.name,
+      grammy: artist.grammy,
+    };
   }
 
   async update(
     id: string,
     updateArtistDto: UpdateArtistDto,
   ): Promise<IArtist | null> {
-    const artistIndex = this.artists.findIndex((t) => t.id === id);
-    if (artistIndex === -1) {
+    const artist = await this.artistRepository.findOne({ where: { id } });
+    if (!artist) {
       return null;
     }
 
-    const artist = this.artists[artistIndex];
     artist.name = updateArtistDto.name;
     artist.grammy = updateArtistDto.grammy;
-
-    return artist;
+    const savedArtist = await this.artistRepository.save(artist);
+    return {
+      id: savedArtist.id,
+      name: savedArtist.name,
+      grammy: savedArtist.grammy,
+    };
   }
 
   async delete(id: string): Promise<void> {
-    const artistIndex = this.artists.findIndex((t) => t.id === id);
-    if (artistIndex !== -1) {
-      this.artists.splice(artistIndex, 1);
-    }
+    await this.artistRepository.delete(id);
   }
 }

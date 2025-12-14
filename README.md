@@ -3,7 +3,9 @@
 ## Prerequisites
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
-- Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+- Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager (for local development).
+- Docker - [Download & Install Docker](https://www.docker.com/get-started) (for containerized deployment).
+- Docker Compose - Usually included with Docker Desktop.
 
 ## Downloading
 
@@ -19,15 +21,99 @@ npm install
 
 ## Running application
 
+### Running with Docker (Recommended)
+
+1. **Create `.env` file** in the project root with the following variables:
+
+```env
+# Database Configuration
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=nodejs2025Q2-service
+
+# Application Configuration
+NODE_ENV=production
+PORT=4000
+
+# Docker Configuration
+APP_PORT=4000
 ```
+
+2. **Start all services** (PostgreSQL database and application):
+
+```bash
+docker-compose up -d
+```
+
+This will:
+- Build and start the PostgreSQL database container
+- Build and start the application container
+- Create a user-defined bridge network (`app-network`)
+- Set up volumes for database persistence and logs
+
+3. **View logs**:
+
+```bash
+# View all logs
+docker-compose logs -f
+
+# View only application logs
+docker-compose logs -f app
+
+# View only database logs
+docker-compose logs -f postgres
+```
+
+4. **Stop services**:
+
+```bash
+docker-compose down
+```
+
+5. **Stop and remove volumes** (this will delete all database data):
+
+```bash
+docker-compose down -v
+```
+
+6. **Rebuild containers** (after code changes):
+
+```bash
+docker-compose up -d --build
+```
+
+After starting the containers, you can access:
+- **API Base URL**: `http://localhost:4000`
+- **Swagger/OpenAPI Documentation**: `http://localhost:4000/api`
+
+**Note**: The containers are configured to automatically restart after crashes (`restart: unless-stopped`). Database files and logs are stored in Docker volumes, so data persists between container restarts.
+
+### Running locally (without Docker)
+
+1. **Create `.env` file** with database configuration:
+
+```env
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=nodejs2025Q2-service
+NODE_ENV=development
+PORT=4000
+```
+
+2. **Make sure PostgreSQL is running** locally on port 5432.
+
+3. **Install dependencies and start**:
+
+```bash
+npm install
 npm start
 ```
 
-The application will start on port 4000 by default. You can configure the port by setting the `PORT` environment variable in the `.env` file:
-
-```
-PORT=4000
-```
+The application will start on port 4000 by default. You can configure the port by setting the `PORT` environment variable in the `.env` file.
 
 After starting the app, you can access:
 - **API Base URL**: `http://localhost:4000`
@@ -81,8 +167,23 @@ npm run lint
 npm run format
 ```
 
+### Docker Security Scanning
+
+To scan Docker images for vulnerabilities using Docker Scout:
+
+```bash
+npm run docker:scout
+```
+
+This will build the application image and scan it for security vulnerabilities. Docker Scout is a free solution provided by Docker for vulnerability scanning.
+
 ### Debugging in VSCode
 
 Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+
+### Docker Images
+
+- [Postgres Docker Image](https://hub.docker.com/r/almazzzur/nodejs2025q2-service-postgres)
+- [Application Docker Image](https://hub.docker.com/r/almazzzur/nodejs2025q2-service-app)

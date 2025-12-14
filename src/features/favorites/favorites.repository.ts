@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { IFavorite } from './interfaces/favorite.interface';
+import { Favorite } from './entities/favorite.entity';
 
 export abstract class FavoritesRepository {
   abstract findAll(): Promise<IFavorite>;
@@ -15,53 +18,91 @@ export abstract class FavoritesRepository {
 }
 
 @Injectable()
-export class InMemoryFavoritesRepository extends FavoritesRepository {
-  private readonly favorites: IFavorite = {
-    artists: [],
-    albums: [],
-    tracks: [],
-  };
+export class TypeOrmFavoritesRepository extends FavoritesRepository {
+  private readonly DEFAULT_ID = 'default';
+
+  constructor(
+    @InjectRepository(Favorite)
+    private readonly favoriteRepository: Repository<Favorite>,
+  ) {
+    super();
+  }
+
+  private async getOrCreateFavorite(): Promise<Favorite> {
+    let favorite = await this.favoriteRepository.findOne({
+      where: { id: this.DEFAULT_ID },
+    });
+
+    if (!favorite) {
+      favorite = this.favoriteRepository.create({
+        id: this.DEFAULT_ID,
+        artists: [],
+        albums: [],
+        tracks: [],
+      });
+      favorite = await this.favoriteRepository.save(favorite);
+    }
+
+    return favorite;
+  }
 
   async findAll(): Promise<IFavorite> {
-    return this.favorites;
+    const favorite = await this.getOrCreateFavorite();
+    return {
+      artists: favorite.artists || [],
+      albums: favorite.albums || [],
+      tracks: favorite.tracks || [],
+    };
   }
 
   async addTrack(trackId: string): Promise<void> {
-    if (!this.favorites.tracks.includes(trackId)) {
-      this.favorites.tracks.push(trackId);
+    const favorite = await this.getOrCreateFavorite();
+    if (!favorite.tracks.includes(trackId)) {
+      favorite.tracks.push(trackId);
+      await this.favoriteRepository.save(favorite);
     }
   }
 
   async removeTrack(trackId: string): Promise<void> {
-    const index = this.favorites.tracks.indexOf(trackId);
+    const favorite = await this.getOrCreateFavorite();
+    const index = favorite.tracks.indexOf(trackId);
     if (index !== -1) {
-      this.favorites.tracks.splice(index, 1);
+      favorite.tracks.splice(index, 1);
+      await this.favoriteRepository.save(favorite);
     }
   }
 
   async addAlbum(albumId: string): Promise<void> {
-    if (!this.favorites.albums.includes(albumId)) {
-      this.favorites.albums.push(albumId);
+    const favorite = await this.getOrCreateFavorite();
+    if (!favorite.albums.includes(albumId)) {
+      favorite.albums.push(albumId);
+      await this.favoriteRepository.save(favorite);
     }
   }
 
   async removeAlbum(albumId: string): Promise<void> {
-    const index = this.favorites.albums.indexOf(albumId);
+    const favorite = await this.getOrCreateFavorite();
+    const index = favorite.albums.indexOf(albumId);
     if (index !== -1) {
-      this.favorites.albums.splice(index, 1);
+      favorite.albums.splice(index, 1);
+      await this.favoriteRepository.save(favorite);
     }
   }
 
   async addArtist(artistId: string): Promise<void> {
-    if (!this.favorites.artists.includes(artistId)) {
-      this.favorites.artists.push(artistId);
+    const favorite = await this.getOrCreateFavorite();
+    if (!favorite.artists.includes(artistId)) {
+      favorite.artists.push(artistId);
+      await this.favoriteRepository.save(favorite);
     }
   }
 
   async removeArtist(artistId: string): Promise<void> {
-    const index = this.favorites.artists.indexOf(artistId);
+    const favorite = await this.getOrCreateFavorite();
+    const index = favorite.artists.indexOf(artistId);
     if (index !== -1) {
-      this.favorites.artists.splice(index, 1);
+      favorite.artists.splice(index, 1);
+      await this.favoriteRepository.save(favorite);
     }
   }
 
