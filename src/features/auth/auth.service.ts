@@ -24,7 +24,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signup(signupDto: SignupDto): Promise<void> {
+  async signup(signupDto: SignupDto): Promise<{ id: string }> {
     if (
       typeof signupDto.login !== 'string' ||
       typeof signupDto.password !== 'string' ||
@@ -45,10 +45,12 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(signupDto.password, 10);
 
-    await this.usersRepository.create({
+    const user = await this.usersRepository.create({
       login: signupDto.login,
       password: hashedPassword,
     });
+
+    return { id: user.id };
   }
 
   async login(loginDto: LoginDto): Promise<TokenResponseDto> {

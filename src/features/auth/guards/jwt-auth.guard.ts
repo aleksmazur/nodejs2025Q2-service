@@ -28,6 +28,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     const authHeader = request.headers.authorization;
+    
     if (!authHeader) {
       throw new UnauthorizedException('Authorization header is missing');
     }

@@ -25,15 +25,20 @@ export class AuthController {
   @ApiResponse({
     status: 201,
     description: 'User created successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+      },
+    },
   })
   @ApiResponse({
     status: 400,
     description: 'Invalid DTO (no login or password, or they are not strings)',
   })
-  async signup(@Body() signupDto: SignupDto): Promise<{ message: string }> {
+  async signup(@Body() signupDto: SignupDto): Promise<{ id: string }> {
     try {
-      await this.authService.signup(signupDto);
-      return { message: 'User created successfully' };
+      return await this.authService.signup(signupDto);
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
