@@ -39,6 +39,17 @@ PORT=4000
 
 # Docker Configuration
 APP_PORT=4000
+
+# JWT Authentication (Required)
+JWT_SECRET=your-secret-key-for-access-tokens
+JWT_REFRESH_SECRET=your-secret-key-for-refresh-tokens
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+# Logging Configuration (Optional)
+LOG_LEVEL=INFO
+LOG_FILE=logs/app.log
+LOG_FILE_MAX_SIZE_KB=1024
 ```
 
 2. **Start all services** (PostgreSQL database and application):
@@ -95,13 +106,27 @@ After starting the containers, you can access:
 1. **Create `.env` file** with database configuration:
 
 ```env
+# Database Configuration
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=nodejs2025Q2-service
+
+# Application Configuration
 NODE_ENV=development
 PORT=4000
+
+# JWT Authentication (Required)
+JWT_SECRET=your-secret-key-for-access-tokens
+JWT_REFRESH_SECRET=your-secret-key-for-refresh-tokens
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+# Logging Configuration (Optional)
+LOG_LEVEL=INFO
+LOG_FILE=logs/app.log
+LOG_FILE_MAX_SIZE_KB=1024
 ```
 
 2. **Make sure PostgreSQL is running** locally on port 5432.
@@ -131,31 +156,145 @@ For more information about OpenAPI/Swagger, please visit https://swagger.io/.
 
 ## Testing
 
-After application running open new terminal and enter:
+**Important**: Before running tests, make sure:
+1. The application is running (either via Docker or locally)
+2. PostgreSQL database is accessible
+3. Environment variables are set (especially `JWT_SECRET` and `JWT_REFRESH_SECRET`)
 
-To run all tests without authorization
+### Setting up Local Environment for Testing
 
+To run tests locally, you need to set up PostgreSQL database and configure the application:
+
+#### Step 1: Install and Start PostgreSQL
+
+**On macOS (using Homebrew):**
+```bash
+# Install PostgreSQL (if not already installed)
+brew install postgresql@17
+
+# Start PostgreSQL service
+brew services start postgresql@17
+
+# Verify PostgreSQL is running
+pg_isready -h localhost -p 5432
 ```
-npm run test
+
+#### Step 2: Create Database and User
+
+```bash
+# Connect to PostgreSQL as superuser
+psql postgres
+
+# Create user (if not exists)
+CREATE USER postgres WITH PASSWORD 'postgres' SUPERUSER;
+
+# Create database
+CREATE DATABASE "nodejs2025Q2-service";
+
+# Grant privileges (if needed)
+ALTER DATABASE "nodejs2025Q2-service" OWNER TO postgres;
+
+# Exit psql
+\q
 ```
 
-To run only one of all test suites
+#### Step 3: Configure Environment Variables
 
-```
-npm run test -- <path to suite>
+Create or update `.env` file in the project root with the following:
+
+```env
+# Database Configuration
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=nodejs2025Q2-service
+
+# Application Configuration
+NODE_ENV=development
+PORT=4000
+
+# JWT Authentication (Required for tests)
+JWT_SECRET=test-secret-key
+JWT_REFRESH_SECRET=test-refresh-secret-key
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+
+# Logging Configuration (Optional)
+LOG_LEVEL=INFO
+LOG_FILE=logs/app.log
+LOG_FILE_MAX_SIZE_KB=1024
 ```
 
-To run all test with authorization
+#### Step 4: Install Dependencies and Run Migrations
 
+```bash
+# Install npm dependencies
+npm install
+
+# Run database migrations
+npm run migration:run
 ```
+
+#### Step 5: Start the Application
+
+```bash
+# Start the application in development mode
+npm run start:dev
+```
+
+The application should be running on `http://localhost:4000`. Verify by visiting `http://localhost:4000` in your browser or running:
+
+```bash
+curl http://localhost:4000
+```
+
+#### Step 6: Run Tests
+
+Once the application is running, open a new terminal window and run tests:
+
+```bash
+# Run tests with authorization
 npm run test:auth
 ```
 
-To run only specific test suite with authorization
+### Running Tests
 
+After application is running, open a new terminal and enter:
+
+**To run all tests without authorization:**
+```bash
+npm run test
 ```
+
+**To run only one test suite:**
+```bash
+npm run test -- <path to suite>
+```
+
+**To run all tests with authorization:**
+```bash
+npm run test:auth
+```
+
+**To run only specific test suite with authorization:**
+```bash
 npm run test:auth -- <path to suite>
 ```
+
+**To run refresh token tests:**
+```bash
+npm run test:refresh
+```
+
+### Test Environment Setup
+
+For tests to work correctly, ensure your `.env` file includes the configuration shown in Step 3 above. The most important variables for tests are:
+
+- `JWT_SECRET` and `JWT_REFRESH_SECRET` - must be set to valid secret keys
+- `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` - database connection settings
+
+**Note**: Make sure the database is created and migrations are applied before running tests. See Step 4 above for migration commands.
 
 ### Auto-fix and format
 

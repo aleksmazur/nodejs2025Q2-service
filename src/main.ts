@@ -3,11 +3,16 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
+import { LoggingService } from './common/logging/logging.service';
 
 dotenv.config();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  const loggingService = app.get(LoggingService);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -16,6 +21,33 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  process.on('uncaughtException', (error: Error) => {
+    loggingService.error(
+      `Uncaught Exception: ${error.message}`,
+      error.stack,
+      'Process',
+    );
+    setTimeout(() => {
+      process.exit(1);
+    }, 1000);
+  });
+
+  process.on('unhandledRejection', (reason: any) => {
+    const errorMessage =
+      reason instanceof Error
+        ? reason.message
+        : typeof reason === 'string'
+          ? reason
+          : JSON.stringify(reason);
+    const errorStack = reason instanceof Error ? reason.stack : undefined;
+
+    loggingService.error(
+      `Unhandled Rejection: ${errorMessage}`,
+      errorStack,
+      'Process',
+    );
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Home Library Service')
@@ -36,6 +68,9 @@ async function bootstrap() {
 
   const port = process.env.PORT || 4000;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
+  loggingService.log(
+    `Application is running on: http://localhost:${port}`,
+    'Bootstrap',
+  );
 }
 bootstrap();

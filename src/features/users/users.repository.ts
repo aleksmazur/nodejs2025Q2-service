@@ -10,6 +10,7 @@ export abstract class UsersRepository {
   abstract create(createUserDto: CreateUserDto): Promise<IUser>;
   abstract findAll(): Promise<IUser[]>;
   abstract findById(id: string): Promise<IUser | null>;
+  abstract findByLogin(login: string): Promise<IUser | null>;
   abstract updatePassword(
     id: string,
     updatePasswordDto: UpdatePasswordDto,
@@ -56,6 +57,21 @@ export class TypeOrmUsersRepository extends UsersRepository {
 
   async findById(id: string): Promise<IUser | null> {
     const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      return null;
+    }
+    return {
+      id: user.id,
+      login: user.login,
+      password: user.password,
+      version: user.version,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  async findByLogin(login: string): Promise<IUser | null> {
+    const user = await this.userRepository.findOne({ where: { login } });
     if (!user) {
       return null;
     }

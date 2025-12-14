@@ -18,8 +18,8 @@ export class UsersService {
       id: user.id,
       login: user.login,
       version: user.version,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      createdAt: Number(user.createdAt),
+      updatedAt: Number(user.updatedAt),
     };
   }
 
