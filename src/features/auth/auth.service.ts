@@ -36,7 +36,9 @@ export class AuthService {
       );
     }
 
-    const existingUser = await this.usersRepository.findByLogin(signupDto.login);
+    const existingUser = await this.usersRepository.findByLogin(
+      signupDto.login,
+    );
     if (existingUser) {
       throw new BadRequestException('User with this login already exists');
     }

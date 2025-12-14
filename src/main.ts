@@ -33,15 +33,14 @@ async function bootstrap() {
     }, 1000);
   });
 
-  process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+  process.on('unhandledRejection', (reason: any) => {
     const errorMessage =
       reason instanceof Error
         ? reason.message
         : typeof reason === 'string'
           ? reason
           : JSON.stringify(reason);
-    const errorStack =
-      reason instanceof Error ? reason.stack : undefined;
+    const errorStack = reason instanceof Error ? reason.stack : undefined;
 
     loggingService.error(
       `Unhandled Rejection: ${errorMessage}`,

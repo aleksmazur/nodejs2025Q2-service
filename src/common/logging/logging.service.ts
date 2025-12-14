@@ -20,11 +20,15 @@ export class LoggingService implements LoggerService, OnModuleDestroy {
 
   constructor() {
     const levelStr = (process.env.LOG_LEVEL || 'INFO').toUpperCase();
-    this.logLevel = LogLevel[levelStr as keyof typeof LogLevel] ?? LogLevel.INFO;
+    this.logLevel =
+      LogLevel[levelStr as keyof typeof LogLevel] ?? LogLevel.INFO;
 
     const logFile = process.env.LOG_FILE;
     this.useFileLogging = !!logFile;
-    this.maxFileSizeKB = parseInt(process.env.LOG_FILE_MAX_SIZE_KB || '1024', 10);
+    this.maxFileSizeKB = parseInt(
+      process.env.LOG_FILE_MAX_SIZE_KB || '1024',
+      10,
+    );
 
     if (this.useFileLogging && logFile) {
       this.logFilePath = path.isAbsolute(logFile)
@@ -48,7 +52,9 @@ export class LoggingService implements LoggerService, OnModuleDestroy {
     const timestamp = new Date().toISOString();
     const contextStr = context ? `[${context}]` : '';
     const messageStr =
-      typeof message === 'object' ? JSON.stringify(message, null, 2) : String(message);
+      typeof message === 'object'
+        ? JSON.stringify(message, null, 2)
+        : String(message);
     return `${timestamp} [${level}] ${contextStr} ${messageStr}\n`;
   }
 
@@ -57,7 +63,7 @@ export class LoggingService implements LoggerService, OnModuleDestroy {
 
     if (this.useFileLogging) {
       this.rotateLogFileIfNeeded();
-      
+
       if (this.logStream) {
         this.logStream.write(formattedMessage);
       } else {
@@ -95,15 +101,16 @@ export class LoggingService implements LoggerService, OnModuleDestroy {
 
         try {
           fs.renameSync(this.logFilePath, rotatedFilePath);
-        } catch (renameError) {
-        }
+        } catch (renameError) {}
 
         this.logStream = fs.createWriteStream(this.logFilePath, { flags: 'a' });
       }
     } catch (error) {
       if (this.logFilePath) {
         try {
-          this.logStream = fs.createWriteStream(this.logFilePath, { flags: 'a' });
+          this.logStream = fs.createWriteStream(this.logFilePath, {
+            flags: 'a',
+          });
         } catch (e) {
           this.useFileLogging = false;
           this.logStream = null;
@@ -114,9 +121,7 @@ export class LoggingService implements LoggerService, OnModuleDestroy {
 
   error(message: any, trace?: string, context?: string): void {
     if (this.shouldLog(LogLevel.ERROR)) {
-      const fullMessage = trace
-        ? `${message}\n${trace}`
-        : message;
+      const fullMessage = trace ? `${message}\n${trace}` : message;
       this.writeLog('ERROR', fullMessage, context);
     }
   }
