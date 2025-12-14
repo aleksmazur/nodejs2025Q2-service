@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './features/users/users.module';
@@ -7,9 +8,13 @@ import { ArtistsModule } from './features/artists/artists.module';
 import { AlbumsModule } from './features/albums/albums.module';
 import { FavoritesModule } from './features/favorites/favorites.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggingModule } from './common/logging/logging.module';
+import { HttpExceptionFilter } from './common/logging/http-exception.filter';
+import { LoggingInterceptor } from './common/logging/logging.interceptor';
 
 @Module({
   imports: [
+    LoggingModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST || 'localhost',
@@ -30,6 +35,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     FavoritesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
 })
 export class AppModule {}
